@@ -1,31 +1,41 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<manifest identifier="com.example.p5jsquiz.scorm12" version="1.0"
-          xmlns="http://www.imsproject.org/xsd/imscp_rootv1p1p2"
-          xmlns:adlcp="http://www.adlnet.org/xsd/adlcp_rootv1p2"
-          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-          xsi:schemaLocation="http://www.imsproject.org/xsd/imscp_rootv1p1p2 imscp_rootv1p1p2.xsd
-                              http://www.adlnet.org/xsd/adlcp_rootv1p2 adlcp_rootv1p2.xsd">
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>形狀與比例觀察測驗</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f0f0f0;
+        }
+        .button-container {
+            position: absolute;
+            bottom: 50px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10;
+        }
+        .button-container button {
+            cursor: pointer;    /* 滑鼠移上去時顯示手形指標 */
+            border: 1px solid #adadad;
+            border-radius: 8px; /* 圓角效果 */
+            background-color: #f0f0f0;
+            transition: background-color 0.2s; /* 滑鼠懸停時的漸變效果 */
+        }
+    </style>
+</head>
+<body>
+    <div class="button-container" id="start-btn-container"><button id="start-btn">開始測驗</button></div>
+    <div class="button-container" id="navigation-buttons" style="display:none;"><button id="prev-btn">上一題</button><button id="next-btn">下一題</button><button id="submit-btn">交卷</button></div>
 
-    <metadata>
-        <schema>ADL SCORM</schema>
-        <schemaversion>1.2</schemaversion>
-    </metadata>
-
-    <organizations default="org_1">
-        <organization identifier="org_1">
-            <title>形狀與比例觀察測驗</title>
-            <item identifier="item_1" identifierref="res_1">
-                <title>測驗</title>
-            </item>
-        </organization>
-    </organizations>
-
-    <resources>
-        <resource identifier="res_1" type="webcontent" adlcp:scormtype="sco" href="index.html">
-            <file href="index.html"/>
-            <file href="sketch.js"/>
-            <file href="SCORM_API_wrapper.js"/>
-            <file href="libraries/p5.min.js"/>
-        </resource>
-    </resources>
-</manifest>
+    <script src="libraries/p5.min.js"></script>
+    <script src="sketch.js"></script>
+</body>
+</html>
