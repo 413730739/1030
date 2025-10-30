@@ -62,6 +62,11 @@ let showFireworks = false;
 let stars = [];
 let mouseTrailPoints = [];
 
+// 用於響應式設計的基準尺寸和縮放比例
+const baseWidth = 1920;
+const baseHeight = 1080;
+let scaleFactor;
+
 function setup() {
     createCanvas(windowWidth, windowHeight);
     document.getElementById('start-btn').addEventListener('click', startQuiz);
@@ -70,6 +75,9 @@ function setup() {
     document.getElementById('submit-btn').addEventListener('click', showResult);
     gravity = createVector(0, 0.2);
     colorMode(HSB);
+
+    // 計算初始縮放比例
+    updateScale();
     
     // 創建星星效果
     for (let i = 0; i < 50; i++) {
@@ -113,13 +121,13 @@ function drawMainContent() {
     if (currentQuestion === -1 && !showFireworks) {
         push();
         textAlign(CENTER, CENTER);
-        textSize(48);
+        textSize(48 * scaleFactor);
         fill(0);
-        text("形狀與比例觀察", width/2, height/2 - 100);
+        text("形狀與比例觀察", width/2, height/2 - 100 * scaleFactor);
         
-        textSize(24);
+        textSize(24 * scaleFactor);
         fill(100);
-        text("總共10題", width/2, height/2 - 40);
+        text("總共10題", width/2, height/2 - 40 * scaleFactor);
         pop();
         return;
     }
@@ -154,7 +162,7 @@ function drawMainContent() {
         textAlign(CENTER, CENTER);
         
         // 分數顯示
-        textSize(48);
+        textSize(48 * scaleFactor);
         // 根據分數區間選擇固定文字顏色（HSB）
         let scoreColor;
         if (score <= 20) {
@@ -185,7 +193,7 @@ function drawMainContent() {
         else if (score <= 80) feedback = "很棒唷!";
         else feedback = "非常棒!你都學會了!";
         
-    textSize(36);
+    textSize(36 * scaleFactor);
     noStroke();
     fill(scoreColor);
     text(feedback, width/2, height/2);
@@ -200,35 +208,39 @@ function drawMainContent() {
         // 白色背景
 
         // 顯示題目
-        textSize(36);
+        textSize(36 * scaleFactor);
         fill(0);
         textAlign(CENTER, TOP);
-        text(questions[currentQuestion].question, width/2, height/2 - 180);
+        text(questions[currentQuestion].question, width/2, height/2 - 180 * scaleFactor);
         
         // 顯示選項
-        textSize(24);
+        textSize(24 * scaleFactor);
         textAlign(CENTER, CENTER);
-        let optionY = height/2 - 40;
+        let optionY = height/2 - 40 * scaleFactor;
+        let optionWidth = 400 * scaleFactor;
+        let optionHeight = 50 * scaleFactor;
+        let optionSpacing = 70 * scaleFactor;
+
         questions[currentQuestion].options.forEach((option, index) => {
             let optionX = width/2;
             
             // 繪製選項按鈕背景
             rectMode(CENTER);
             if (selectedOptions[currentQuestion] === index) {
-                // 選中時的綠色
+                // 選中時的顏色
                 fill(144, 238, 144);
             } else {
-                // 未選中時的淡藍色
+                // 未選中時的顏色
                 fill(176, 224, 230);
             }
             stroke(100);
             strokeWeight(1);
-            rect(optionX, optionY + index * 70, 400, 50, 10);
+            rect(optionX, optionY + index * optionSpacing, optionWidth, optionHeight, 10 * scaleFactor);
             
             // 繪製選項文字
             noStroke();
             fill(0);
-            text(option, optionX, optionY + index * 70);
+            text(option, optionX, optionY + index * optionSpacing);
         });
         pop();
     }
@@ -286,14 +298,15 @@ function showQuestion() {
 
 function mousePressed() {
     if (currentQuestion >= 0 && !showFireworks) {
-        let optionY = height/2 - 40;
+        let optionY = height/2 - 40 * scaleFactor;
         let optionX = width/2;
-        let optionWidth = 400;
-        let optionHeight = 50;
+        let optionWidth = 400 * scaleFactor;
+        let optionHeight = 50 * scaleFactor;
+        let optionSpacing = 70 * scaleFactor;
         
         // 檢查是否點擊了任何選項
         questions[currentQuestion].options.forEach((option, index) => {
-            let y = optionY + index * 70;
+            let y = optionY + index * optionSpacing;
             if (mouseX > optionX - optionWidth/2 && mouseX < optionX + optionWidth/2 &&
                 mouseY > y - optionHeight/2 && mouseY < y + optionHeight/2) {
                 // 如果這是一個新的選擇（之前未選擇過）且答案正確
@@ -373,6 +386,13 @@ function showResult() {
 
 function windowResized() {
     resizeCanvas(windowWidth, windowHeight);
+    updateScale();
+}
+
+function updateScale() {
+    let scaleX = windowWidth / baseWidth;
+    let scaleY = windowHeight / baseHeight;
+    scaleFactor = min(scaleX, scaleY);
 }
 
 class Firework {
