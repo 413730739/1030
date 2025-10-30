@@ -68,8 +68,7 @@ const baseHeight = 1080;
 let scaleFactor;
 
 function setup() {
-    const canvas = createCanvas(windowWidth, windowHeight);
-    canvas.parent('p5-canvas'); // 將畫布附加到HTML中的特定div
+    createCanvas(windowWidth, windowHeight);
     document.getElementById('start-btn').addEventListener('click', startQuiz);
     document.getElementById('next-btn').addEventListener('click', nextQuestion);
     document.getElementById('prev-btn').addEventListener('click', prevQuestion);
@@ -270,10 +269,6 @@ function drawMainContent() {
 function startQuiz() {
     document.getElementById('start-btn').style.display = 'none';
     currentQuestion = 0;
-    // SCORM: 設定課程狀態為 'incomplete'
-    scorm.set("cmi.core.lesson_status", "incomplete");
-    scorm.set("cmi.core.score.raw", "0"); // 初始化分數
-    scorm.save();
     showQuestion();
 }
 
@@ -330,9 +325,6 @@ function mousePressed() {
                 }
                 
                 selectedOptions[currentQuestion] = index;
-                // SCORM: 每次選擇後更新分數
-                scorm.set("cmi.core.score.raw", score);
-                scorm.save();
                 showQuestion(); // 更新按鈕顯示狀態
             }
         });
@@ -356,15 +348,6 @@ function showResult() {
     showFireworks = true;
     currentQuestion = -1; // 設置為-1表示測驗結束
     
-    // SCORM: 提交最終結果
-    scorm.set("cmi.core.score.raw", score);
-    scorm.set("cmi.core.score.max", "100");
-    scorm.set("cmi.core.score.min", "0");
-    // 根據分數設定 passed/failed 狀態，這裡以60分為及格線為例
-    const lessonStatus = score >= 60 ? "passed" : "failed";
-    scorm.set("cmi.core.lesson_status", lessonStatus);
-    scorm.save(); // 儲存所有數據
-
     // 清空現有的背景物件
     backgroundObjects = [];
     
