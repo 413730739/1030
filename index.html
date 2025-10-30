@@ -1,24 +1,31 @@
-<!DOCTYPE html>
-<html lang="zh-TW">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<?xml version="1.0" encoding="UTF-8"?>
+<manifest identifier="com.example.p5jsquiz.scorm12" version="1.0"
+          xmlns="http://www.imsproject.org/xsd/imscp_rootv1p1p2"
+          xmlns:adlcp="http://www.adlnet.org/xsd/adlcp_rootv1p2"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://www.imsproject.org/xsd/imscp_rootv1p1p2 imscp_rootv1p1p2.xsd
+                              http://www.adlnet.org/xsd/adlcp_rootv1p2 adlcp_rootv1p2.xsd">
 
-    <title>形狀與比例觀察測驗</title>
+    <metadata>
+        <schema>ADL SCORM</schema>
+        <schemaversion>1.2</schemaversion>
+    </metadata>
 
-    <link rel="stylesheet" type="text/css" href="style.css">
+    <organizations default="org_1">
+        <organization identifier="org_1">
+            <title>形狀與比例觀察測驗</title>
+            <item identifier="item_1" identifierref="res_1">
+                <title>測驗</title>
+            </item>
+        </organization>
+    </organizations>
 
-    <script src="libraries/p5.min.js"></script>
-    <script src="libraries/p5.sound.min.js"></script>
-  </head>
-
-  <body>
-    <button id="start-btn" style="position: absolute; left: 50%; top: 60%; transform: translate(-50%, -50%);">開始作答</button>
-    <div id="navigation-buttons" style="position: absolute; left: 50%; bottom: 20px; transform: translateX(-50%); display: none;">
-        <button id="prev-btn" style="display: none;">上一題</button>
-        <button id="next-btn" style="display: none;">下一題</button>
-        <button id="submit-btn" style="display: none;">交卷</button>
-    </div>
-    <script src="sketch.js"></script>
-  </body>
-</html>
+    <resources>
+        <resource identifier="res_1" type="webcontent" adlcp:scormtype="sco" href="index.html">
+            <file href="index.html"/>
+            <file href="sketch.js"/>
+            <file href="SCORM_API_wrapper.js"/>
+            <file href="libraries/p5.min.js"/>
+        </resource>
+    </resources>
+</manifest>
