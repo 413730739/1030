@@ -123,10 +123,10 @@ function drawMainContent() {
         textAlign(CENTER, CENTER);
         textSize(48 * scaleFactor);
         fill(0);
-        text("形狀與比例觀察", width/2, height/2 - 100 * scaleFactor);
+        text("形狀與比例觀察測驗", width/2, height/2 - 100 * scaleFactor);
         
         textSize(24 * scaleFactor);
-        fill(100);
+        fill(50);
         text("總共10題", width/2, height/2 - 40 * scaleFactor);
         pop();
         return;
