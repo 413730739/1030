@@ -61,6 +61,12 @@ let gravity;
 let showFireworks = false;
 let stars = [];
 let mouseTrailPoints = [];
+let startScreenObjects = []; // 用於存放開始畫面的背景物件
+
+// 用於響應式設計的基準尺寸和縮放比例
+let hamburgerIcon, dropdownMenu, confirmDialog;
+let isMenuOpen = false;
+
 
 // 用於響應式設計的基準尺寸和縮放比例
 const baseWidth = 1920;
@@ -73,6 +79,21 @@ function setup() {
     document.getElementById('next-btn').addEventListener('click', nextQuestion);
     document.getElementById('prev-btn').addEventListener('click', prevQuestion);
     document.getElementById('submit-btn').addEventListener('click', showResult);
+
+    hamburgerIcon = document.getElementById('hamburger-icon');
+    dropdownMenu = document.getElementById('dropdown-menu');
+    confirmDialog = document.getElementById('confirm-dialog');
+    // 新增：滑鼠離開選單時，如果選單是開啟的，就將它收起
+    dropdownMenu.addEventListener('mouseleave', () => {
+        if (isMenuOpen) {
+            toggleMenu();
+        }
+    });
+
+    hamburgerIcon.addEventListener('click', toggleMenu);
+    document.getElementById('confirm-exit-btn').addEventListener('click', confirmExit);
+    document.getElementById('cancel-exit-btn').addEventListener('click', cancelExit);
+
     gravity = createVector(0, 0.2);
     colorMode(HSB);
 
@@ -82,6 +103,20 @@ function setup() {
     // 創建星星效果
     for (let i = 0; i < 50; i++) {
         stars.push(new Star());
+    }
+
+    // 創建開始畫面的背景物件
+    for (let i = 0; i < 5; i++) {
+        startScreenObjects.push(new Bubble(random(360)));
+        let s = new Square();
+        s.hue = random(360);
+        startScreenObjects.push(s);
+        let t = new Triangle();
+        t.hue = random(360);
+        startScreenObjects.push(t);
+        let a = new AnimatedStar();
+        a.hue = random(360);
+        startScreenObjects.push(a);
     }
 }
 
@@ -117,8 +152,21 @@ function drawMouseStars() {
 }
 
 function drawMainContent() {
+    // 根據測驗狀態顯示/隱藏漢堡選單圖示
+    if (currentQuestion >= 0 || showFireworks) {
+        hamburgerIcon.style.display = 'block';
+    } else {
+        hamburgerIcon.style.display = 'none';
+    }
+
     // 開始畫面
     if (currentQuestion === -1 && !showFireworks) {
+        // 繪製開始畫面的背景物件
+        for (let obj of startScreenObjects) {
+            obj.update();
+            obj.show();
+        }
+
         push();
         textAlign(CENTER, CENTER);
         textSize(48 * scaleFactor);
@@ -207,6 +255,12 @@ function drawMainContent() {
         background(255);
         // 白色背景
 
+        // 顯示題號
+        textSize(24 * scaleFactor);
+        fill(0);
+        textAlign(RIGHT, TOP);
+        text(`${currentQuestion + 1} / ${questions.length}`, width - 20, 20);
+
         // 顯示題目
         textSize(36 * scaleFactor);
         fill(0);
@@ -269,6 +323,7 @@ function drawMainContent() {
 function startQuiz() {
     document.getElementById('start-btn').style.display = 'none';
     currentQuestion = 0;
+    isMenuOpen = false;
     showQuestion();
 }
 
@@ -278,25 +333,28 @@ function showQuestion() {
     const prevBtn = document.getElementById('prev-btn');
     const submitBtn = document.getElementById('submit-btn');
     
-    // 顯示/隱藏上一題按鈕
+    // 如果不是第一題，就顯示「上一題」按鈕
     prevBtn.style.display = currentQuestion > 0 ? 'inline-block' : 'none';
-    
-    // 顯示/隱藏下一題和交卷按鈕
-    if (selectedOptions[currentQuestion] !== -1) {
-        if (currentQuestion === questions.length - 1) {
-            nextBtn.style.display = 'none';
-            submitBtn.style.display = 'inline-block';
-        } else {
-            nextBtn.style.display = 'inline-block';
-            submitBtn.style.display = 'none';
-        }
-    } else {
-        nextBtn.style.display = 'none';
+
+    // 如果不是最後一題，就顯示「下一題」按鈕
+    if (currentQuestion < questions.length - 1) {
+        nextBtn.style.display = 'inline-block';
         submitBtn.style.display = 'none';
+    } else {
+        // 在最後一題時，檢查是否所有題目都已作答
+        const allAnswered = selectedOptions.every(option => option !== -1);
+        nextBtn.style.display = 'none';
+        // 只有全部作答完畢，才顯示「交卷」按鈕
+        submitBtn.style.display = allAnswered ? 'inline-block' : 'none';
     }
 }
 
 function mousePressed() {
+    // 如果確認對話框正在顯示，則不處理任何滑鼠點擊事件
+    if (confirmDialog.style.display === 'flex') {
+        return;
+    }
+
     if (currentQuestion >= 0 && !showFireworks) {
         let optionY = height/2 - 40 * scaleFactor;
         let optionX = width/2;
@@ -347,6 +405,9 @@ function showResult() {
     document.getElementById('navigation-buttons').style.display = 'none';
     showFireworks = true;
     currentQuestion = -1; // 設置為-1表示測驗結束
+    if (isMenuOpen) {
+        toggleMenu(); // 如果選單是開的，關閉它
+    }
     
     // 清空現有的背景物件
     backgroundObjects = [];
@@ -641,4 +702,84 @@ function drawStar(x, y, points, innerRadius, outerRadius) {
         vertex(sx, sy);
     }
     endShape(CLOSE);
+}
+
+function toggleMenu() {
+    isMenuOpen = !isMenuOpen;
+    if (isMenuOpen) {
+        updateMenuContent();
+        dropdownMenu.style.display = 'block';
+    } else {
+        dropdownMenu.style.display = 'none';
+    }
+}
+
+function updateMenuContent() {
+    dropdownMenu.innerHTML = ''; // 清空選單
+
+    // 新增首頁選項
+    const homeLink = document.createElement('a');
+    homeLink.href = '#';
+    homeLink.innerText = '首頁';
+    homeLink.onclick = (e) => {
+        e.preventDefault();
+        if (currentQuestion >= 0 && !showFireworks) { // 測驗中，但不在結果頁
+            confirmDialog.style.display = 'flex';
+        } else { // 結果頁
+            resetQuiz();
+        }
+        toggleMenu(); // 關閉選單
+    };
+    dropdownMenu.appendChild(homeLink);
+
+    // 新增題目選項
+    for (let i = 0; i < questions.length; i++) {
+        const questionLink = document.createElement('a');
+        if (showFireworks) { // 如果在結果頁，題目連結不可點擊
+            questionLink.href = '#';
+            questionLink.classList.add('disabled-link'); // 添加一個CSS類來禁用樣式
+            questionLink.innerText = `第 ${i + 1} 題`;
+        } else {
+            questionLink.href = '#';
+            
+            const textSpan = document.createElement('span');
+            textSpan.innerText = `第 ${i + 1} 題`;
+            questionLink.appendChild(textSpan);
+
+            if (selectedOptions[i] !== -1) {
+                const dot = document.createElement('span');
+                dot.className = 'answered-dot';
+                questionLink.appendChild(dot);
+            }
+
+            questionLink.onclick = (e) => {
+                e.preventDefault();
+                currentQuestion = i;
+                showFireworks = false; // 確保不在結果頁
+                document.getElementById('start-btn-container').style.display = 'none';
+                showQuestion();
+                toggleMenu(); // 關閉選單
+            };
+        }
+        dropdownMenu.appendChild(questionLink);
+    }
+}
+
+function confirmExit() {
+    resetQuiz();
+    confirmDialog.style.display = 'none';
+}
+
+function cancelExit() {
+    confirmDialog.style.display = 'none';
+}
+
+function resetQuiz() {
+    currentQuestion = -1;
+    score = 0;
+    selectedOptions.fill(-1);
+    showFireworks = false;
+    document.getElementById('start-btn-container').style.display = 'block';
+    document.getElementById('start-btn').style.display = 'inline-block';
+    document.getElementById('navigation-buttons').style.display = 'none';
 }
